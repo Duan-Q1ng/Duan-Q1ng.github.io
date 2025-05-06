@@ -121,14 +121,25 @@
       height: 20px;
       background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ff6699"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') no-repeat center;
       background-size: contain;
-      opacity: 0.5;
-      animation: float 5s infinite;
+      opacity: 0.6;
+      animation: float 5s ease-in-out infinite;
+      transform-origin: center;
     }
 
     @keyframes float {
-      0% { transform: translateY(0); opacity: 0.5; }
-      50% { opacity: 0.8; }
-      100% { transform: translateY(-100vh); opacity: 0; }
+      0% {
+        transform: translateY(0) rotate(0deg) translateX(0);
+        opacity: 0.5;
+      }
+      
+      50% {
+        transform: translateY(-50vh) rotate(5deg) translateX(var(--sway));
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-100vh) rotate(-45deg) translateX(calc(-1 * var(--sway)));
+        opacity: 0;
+      }
     }
 
     @media (max-width: 500px) {
@@ -150,34 +161,62 @@
   <div class="container">
     <h1>欢迎来到我的小网页！</h1>
     <div class="photo-frame">
-
       <img src="images/child.jpg" alt="我的照片">
     </div>
     <div class="bio">
       嗨！我是孙静茹，我是陈继龙大王的忠实粉丝！<br>
       这是一个小小的个人主页，欢迎来玩哦～
     </div>
-<!--     <a href="mailto:your.email@example.com" class="button">联系我</a> -->
-    <div class="hearts">
-      <div class="heart" style="left: 10%; animation-delay: 0s;"></div>
-      <div class="heart" style="left: 30%; animation-delay: 1s;"></div>
-      <div class="heart" style="left: 50%; animation-delay: 2s;"></div>
-      <div class="heart" style="left: 70%; animation-delay: 3s;"></div>
-      <div class="heart" style="left: 90%; animation-delay: 4s;"></div>
-    </div>
+    <div class="hearts"></div>
   </div>
 
   <script>
-    // 动态生成漂浮的心形装饰
+    // 动态生成漂浮的心形装饰，优化性能和视觉效果
     function createHeart() {
       const heart = document.createElement('div');
       heart.className = 'heart';
-      heart.style.left = Math.random() * 100 + '%';
-      heart.style.animationDelay = Math.random() * 5 + 's';
+      
+      // 随机大小（15px-30px）
+      const size = 15 + Math.random() * 15;
+      heart.style.width = `${size}px`;
+      heart.style.height = `${size}px`;
+      
+      // 随机颜色（粉色系）
+      const colors = ['#ff6699', '#ff99cc', '#ffccff', '#ffb3d9'];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      heart.style.background = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${encodeURIComponent(color)}"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') no-repeat center`;
+      heart.style.backgroundSize = 'contain';
+      
+      // 修改水平位置：限制在 20%-80% 范围内
+      const minLeft = 10;
+      const maxLeft = 90;
+      heart.style.left = minLeft + Math.random() * (maxLeft - minLeft) + '%';
+      
+      // 修改垂直起始位置：从页面底部以上 10% 高度开始
+      heart.style.bottom = '10%';
+      
+      // 随机动画时长（4-6秒）
+      const duration = 4 + Math.random() * 2;
+      heart.style.animationDuration = `${duration}s`;
+      
+      // 随机水平偏移方向
+      const direction = Math.random() > 0.5 ? 1 : -1;
+      heart.style.setProperty('--sway', `${direction * 20}px`);
+      
       document.querySelector('.hearts').appendChild(heart);
-      setTimeout(() => heart.remove(), 5000);
+      
+      // 移除心形以优化性能
+      setTimeout(() => heart.remove(), duration * 1000);
+      
+      // 限制最大爱心数量
+      const hearts = document.querySelectorAll('.heart');
+      if (hearts.length > 20) {
+        hearts[0].remove();
+      }
     }
-    setInterval(createHeart, 1000);
+
+    // 每800ms生成一个爱心
+    setInterval(createHeart, 400);
   </script>
 </body>
 </html>
